@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-
+import Link from "next/link";
 interface NavbarProps {
   categories: string[];
   selectedCategory: string;
@@ -14,8 +14,13 @@ const Navbar: React.FC<NavbarProps> = ({
   onSelectCategory,
 }) => {
   return (
-    <nav className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-4 shadow-lg sticky top-0 z-50">
+    <nav className="flex justify-evenly items-center
+ bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-4 shadow-lg sticky top-0 z-50 rounded">
+       <div className="text-white text-2xl font-bold">
+        <Link href="/">Logo</Link>
+       </div>
       <div className="flex items-center justify-center gap-4 scrollbar-hide">
+       
         {categories.map((category) => {
           const isActive = selectedCategory === category;
           return (

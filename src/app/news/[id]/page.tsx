@@ -6,7 +6,6 @@ import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 import Link from "next/link";
 
-
 interface NewsItem {
   id: string;
   title: string;
@@ -53,7 +52,6 @@ export default function NewsPage() {
     async function fetchRelated() {
       setRelatedLoading(true);
       try {
-        // Use selectedCategory to get feed URL
         const feedUrls: Record<string, string> = {
           All: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
           World: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
@@ -67,8 +65,8 @@ export default function NewsPage() {
         const res = await fetch(`/api/rss?url=${encodeURIComponent(feedUrl)}`);
         const data = await res.json();
         const filtered = (data.items as NewsItem[])
-          .filter((i) => i.id !== newsId) // exclude current news
-          .slice(0, 6); // top 6 news
+          .filter((i) => i.id !== newsId)
+          .slice(0, 6);
         setRelatedNews(filtered);
       } catch (err) {
         console.error("Failed to fetch related news", err);
@@ -79,9 +77,6 @@ export default function NewsPage() {
     fetchRelated();
   }, [selectedCategory, newsId]);
 
-  if (loading) return <p className="text-gray-500">Loading...</p>;
-  if (!news) return <p className="text-gray-500">News not found</p>;
-
   return (
     <div className="p-4 max-w-7xl mx-auto">
       {/* Navbar */}
@@ -91,40 +86,62 @@ export default function NewsPage() {
         onSelectCategory={setSelectedCategory}
       />
 
-      {/* News Title */}
-      <h1 className="text-3xl font-bold mt-6 mb-4">{news.title}</h1>
-
-      {/* Image */}
-      {news.image && (
-        <div className="relative w-full h-64 md:h-96 mb-6">
-          <Image
-            src={news.image}
-            alt={news.title}
-            width={800}
-            height={400}
-            className="object-cover rounded-lg"
-          />
+      {/* Main News */}
+      {loading ? (
+        <div className="animate-pulse mt-6">
+          <div className="h-8 bg-gray-300 rounded w-3/4 mb-4"></div>
+          <div className="h-64 md:h-96 bg-gray-300 rounded mb-6"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-300 rounded w-full"></div>
+            <div className="h-4 bg-gray-300 rounded w-5/6"></div>
+            <div className="h-4 bg-gray-300 rounded w-4/6"></div>
+          </div>
         </div>
+      ) : news ? (
+        <>
+          <h1 className="text-3xl font-bold mt-6 mb-4">{news.title}</h1>
+
+          {news.image && (
+            <div className="relative w-full h-64 md:h-96 mb-6">
+              <Image
+                src={news.image}
+                alt={news.title}
+                width={800}
+                height={400}
+                className="object-cover rounded-lg"
+              />
+            </div>
+          )}
+
+          <div
+            className="text-gray-700 prose max-w-full mb-8"
+            dangerouslySetInnerHTML={{ __html: news.content }}
+          />
+
+          {news.pubDate && (
+            <p className="text-xs text-gray-500 mb-6">
+              Published on: {new Date(news.pubDate).toLocaleString()}
+            </p>
+          )}
+        </>
+      ) : (
+        <p className="text-gray-500">News not found</p>
       )}
 
-      {/* Full content */}
-      <div
-        className="text-gray-700 prose max-w-full mb-8"
-        dangerouslySetInnerHTML={{ __html: news.content }}
-      />
-
-      {/* Publication date */}
-      {news.pubDate && (
-        <p className="text-xs text-gray-500 mb-6">
-          Published on: {new Date(news.pubDate).toLocaleString()}
-        </p>
-      )}
-
-      {/* Related / More News */}
+      {/* Related News */}
       <div className="mt-10">
         <h2 className="text-2xl font-bold mb-6">More News in {selectedCategory}</h2>
         {relatedLoading ? (
-          <p className="text-gray-500">Loading...</p>
+          <div className="grid md:grid-cols-3 gap-6 animate-pulse">
+            {Array(6)
+              .fill(0)
+              .map((_, idx) => (
+                <div key={idx} className="border rounded-lg p-3 space-y-2">
+                  <div className="h-40 bg-gray-300 rounded w-full"></div>
+                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                </div>
+              ))}
+          </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             {relatedNews.map((item) => (
@@ -152,7 +169,6 @@ export default function NewsPage() {
           </div>
         )}
       </div>
-      
     </div>
   );
 }

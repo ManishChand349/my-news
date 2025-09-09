@@ -40,7 +40,24 @@ export default function RssFeed({ feedUrl, limit = 6 }: RssFeedProps) {
     fetchFeed();
   }, [feedUrl]);
 
-  if (loading) return <p className="text-gray-500">Loading...</p>;
+  // Skeleton cards while loading
+  if (loading)
+    return (
+      <div className="grid md:grid-cols-2 gap-6">
+        {Array.from({ length: limit }).map((_, idx) => (
+          <div
+            key={idx}
+            className="flex gap-4 rounded-lg shadow-sm p-3 animate-pulse"
+          >
+            <div className="flex-shrink-0 w-32 h-24 bg-gray-200 rounded-md" />
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
+              <div className="h-3 bg-gray-200 rounded w-1/2" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
 
   return (
     <div>
@@ -48,7 +65,7 @@ export default function RssFeed({ feedUrl, limit = 6 }: RssFeedProps) {
         {items.slice(0, visibleCount).map((item) => (
           <div
             key={item.id}
-            className="flex gap-4 border rounded-lg shadow-sm p-3 hover:shadow-md transition"
+            className="flex gap-4 rounded-lg shadow-sm p-3 hover:shadow-md transition"
           >
             {/* Image fixed width/height */}
             <div className="flex-shrink-0 w-32 h-24 relative">
@@ -56,10 +73,10 @@ export default function RssFeed({ feedUrl, limit = 6 }: RssFeedProps) {
                 <Image
                   src={item.image}
                   alt="img"
-                  width={128}   // fixed width
-                  height={96}   // fixed height
+                  width={128}
+                  height={96}
                   className="object-cover rounded-md"
-                  unoptimized    // optional: bypass Next.js optimization
+                  unoptimized
                 />
               ) : (
                 <div className="w-32 h-24 bg-gray-200 flex items-center justify-center text-xs text-gray-500 rounded-md">
