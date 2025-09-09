@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface NewsItem {
   id: string;
   title: string;
@@ -16,13 +18,13 @@ export default function LatestNews({ items }: LatestNewsProps) {
       {/* Headlines */}
       <div className="flex flex-col gap-3">
         {items.map((item) => (
-          <div
+          <Link
             key={item.id}
+            href={`/news/${item.id}`} // internal navigation
             className="cursor-pointer hover:text-blue-600 transition border-b pb-2"
           >
-            {/* yahan id nahi, title render hoga */}
             <h3 className="text-base md:text-lg font-semibold">{item.title}</h3>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

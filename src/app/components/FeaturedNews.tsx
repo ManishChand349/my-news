@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 interface NewsItem {
   id: string;
@@ -17,12 +18,20 @@ export default function FeaturedNews({ item }: FeaturedNewsProps) {
         <Image
           src={item.image}
           alt={item.title}
-           width={600}  height={400}
+          width={800}   // fixed width
+          height={400}  // fixed height
           className="w-full h-full object-cover"
         />
       )}
+
+      {/* Title overlay with clickable Link */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-        <h1 className="text-white text-2xl md:text-4xl font-bold">{item.title}</h1>
+        <Link
+          href={`/news/${item.id}`}
+          className="text-white text-2xl md:text-4xl font-bold hover:text-blue-400 transition"
+        >
+          {item.title}
+        </Link>
       </div>
     </div>
   );

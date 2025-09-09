@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface NewsItem {
   id: string;
@@ -49,32 +50,32 @@ export default function RssFeed({ feedUrl, limit = 6 }: RssFeedProps) {
             key={item.id}
             className="flex gap-4 border rounded-lg shadow-sm p-3 hover:shadow-md transition"
           >
-            {/* Image */}
-            {item.image ? (
-              <div className="relative w-32 h-24 flex-shrink-0">
+            {/* Image fixed width/height */}
+            <div className="flex-shrink-0 w-32 h-24 relative">
+              {item.image ? (
                 <Image
                   src={item.image}
-                  alt={item.title}
-                  fill
+                  alt="img"
+                  width={128}   // fixed width
+                  height={96}   // fixed height
                   className="object-cover rounded-md"
+                  unoptimized    // optional: bypass Next.js optimization
                 />
-              </div>
-            ) : (
-              <div className="w-32 h-24 bg-gray-200 flex items-center justify-center text-xs text-gray-500 rounded-md">
-                No Image
-              </div>
-            )}
+              ) : (
+                <div className="w-32 h-24 bg-gray-200 flex items-center justify-center text-xs text-gray-500 rounded-md">
+                  No Image
+                </div>
+              )}
+            </div>
 
             {/* Content */}
             <div className="flex flex-col justify-between">
-              <a
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href={`/news/${item.id}`}
                 className="font-semibold text-gray-800 hover:text-blue-600 line-clamp-2"
               >
                 {item.title}
-              </a>
+              </Link>
               <p className="text-xs text-gray-500">{item.pubDate}</p>
             </div>
           </div>
