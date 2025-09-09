@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+
 interface NavbarProps {
   categories: string[];
   selectedCategory: string;
@@ -14,13 +15,16 @@ const Navbar: React.FC<NavbarProps> = ({
   onSelectCategory,
 }) => {
   return (
-    <nav className="flex justify-evenly items-center
- bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-4 shadow-lg sticky top-0 z-50 rounded">
-       <div className="text-white text-2xl font-bold">
+    <nav className="flex flex-col sm:flex-row justify-between items-center
+      bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-4 shadow-lg sticky top-0 z-50 rounded">
+      
+      {/* Logo */}
+      <div className="text-white text-2xl font-bold mb-2 sm:mb-0">
         <Link href="/">Logo</Link>
-       </div>
-      <div className="flex items-center justify-center gap-4 scrollbar-hide">
-       
+      </div>
+
+      {/* Categories */}
+      <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide px-2 w-full sm:w-auto">
         {categories.map((category) => {
           const isActive = selectedCategory === category;
           return (
@@ -28,8 +32,11 @@ const Navbar: React.FC<NavbarProps> = ({
               key={category}
               onClick={() => onSelectCategory(category)}
               className={`
-                relative px-6 py-2 font-semibold rounded-full transition-all duration-300 cursor-pointer
-                ${isActive ? "bg-white text-blue-600 shadow-xl scale-110" : "text-white hover:bg-white/20 hover:scale-105"}
+                relative px-4 py-2 font-semibold rounded-full transition-all duration-300 cursor-pointer
+                ${isActive 
+                  ? "bg-white text-blue-600 shadow-xl scale-110" 
+                  : "text-white hover:bg-white/20 hover:scale-105"
+                }
               `}
             >
               {category}
