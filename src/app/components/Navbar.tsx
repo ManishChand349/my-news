@@ -32,7 +32,7 @@ const Navbar: React.FC<NavbarProps> = ({
               key={category}
               onClick={() => onSelectCategory(category)}
               className={`
-                relative px-4 py-2 font-semibold rounded-full transition-all duration-300 cursor-pointer
+                relative px-4 py-1 font-semibold rounded-xl transition-all duration-300 cursor-pointer
                 ${isActive 
                   ? "bg-white text-blue-600 shadow-xl scale-110" 
                   : "text-white hover:bg-white/20 hover:scale-105"
