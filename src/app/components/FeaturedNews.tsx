@@ -18,17 +18,15 @@ export default function FeaturedNews({ item }: FeaturedNewsProps) {
         <Image
           src={item.image}
           alt={item.title}
-          fill  // fill parent container
-          style={{ objectFit: "cover" }} // cover the container
-          className="w-full h-full"
+          fill
+          style={{ objectFit: "cover" }}
           sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, 100vw"
         />
       )}
-
-      {/* Title overlay with clickable Link */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
         <Link
-          href={`/news/${item.id}`}
+          href={item.id}
+          target="_blank"
           className="text-white text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold hover:text-blue-400 transition"
         >
           {item.title}

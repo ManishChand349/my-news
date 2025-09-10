@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 
 interface NavbarProps {
   categories: string[];
@@ -15,39 +14,21 @@ const Navbar: React.FC<NavbarProps> = ({
   onSelectCategory,
 }) => {
   return (
-    <nav className="flex flex-col sm:flex-row justify-between items-center
-      bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 p-4 shadow-lg sticky top-0 z-50 rounded">
-      
-      {/* Logo */}
-      <div className="text-white text-2xl font-bold mb-2 sm:mb-0">
-        <Link href="/">Logo</Link>
-      </div>
-
-      {/* Categories */}
-      <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide px-2 w-full sm:w-auto">
-        {categories.map((category) => {
-          const isActive = selectedCategory === category;
-          return (
-            <button
-              key={category}
-              onClick={() => onSelectCategory(category)}
-              className={`
-                relative px-4 py-1 font-semibold rounded-xl transition-all duration-300 cursor-pointer
-                ${isActive 
-                  ? "bg-white text-blue-600 shadow-xl scale-110" 
-                  : "text-white hover:bg-white/20 hover:scale-105"
-                }
-              `}
-            >
-              {category}
-              {isActive && (
-                <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-full animate-pulse"></span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </nav>
+    <div className="flex gap-4 mb-6 flex-wrap">
+      {categories.map((cat) => (
+        <button
+          key={cat}
+          onClick={() => onSelectCategory(cat)}
+          className={`px-4 py-2 cursor-pointer rounded-full font-semibold transition ${
+            selectedCategory === cat
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+          }`}
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
   );
 };
 

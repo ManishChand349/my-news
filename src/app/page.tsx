@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import Navbar from "../app/components/Navbar";
-import FeaturedNews from "../app/components/FeaturedNews";
-import LatestNews from "../app/components/LatestNews";
-import RssFeed from "../app/components/RssFeed";
 
 interface NewsItem {
   id: string;
@@ -12,52 +12,67 @@ interface NewsItem {
   content: string;
   pubDate?: string;
   image?: string;
+  link?: string;
+  source?: string;
 }
 
-const categories = ["All", "World", "Technology", "Business", "Health"];
+// Ye array ab fully dynamic hai
+const categories = [
+  "All",
+  "Smartphone",
+  "Laptop",
+  "Gadgets",
+  "Tech Accessories",
+  "Wearables",
+  "Camera",
+  "Audio"
+];
 
 export default function Home() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [items, setItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sectionArticles, setSectionArticles] = useState<Record<string, NewsItem[]>>({});
 
-  // Feed URLs
-  const feedUrls: Record<string, string> = {
-    All: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
-    World: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-    Technology: "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
-    Sports: "https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml",
-    Business: "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
-    Health: "https://rss.nytimes.com/services/xml/rss/nyt/Health.xml",
-  };
+  async function fetchNews(category: string) {
+    setLoading(true);
+    try {
+      const query = category === "All" ? "technology" : category.toLowerCase();
+      const res = await fetch(`/api/news?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      setItems(data.items || []);
+    } catch (err) {
+      console.error("Failed to fetch news", err);
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const feedUrl = feedUrls[selectedCategory];
-
-  // Fetch RSS items for top section
-  useEffect(() => {
-    async function fetchFeed() {
-      setLoading(true);
+  // Har category ke liye max 6 articles fetch karenge
+  async function fetchSectionArticles() {
+    const newSectionArticles: Record<string, NewsItem[]> = {};
+    for (const category of categories.filter((c) => c !== "All")) {
       try {
-        const res = await fetch(`/api/rss?url=${encodeURIComponent(feedUrl)}`);
+        const res = await fetch(`/api/news?q=${encodeURIComponent(category.toLowerCase())}`);
         const data = await res.json();
-        setItems(data.items || []);
+        newSectionArticles[category] = (data.items || []).slice(0, 6);
       } catch (err) {
-        console.error("Failed to fetch feed", err);
-      } finally {
-        setLoading(false);
+        newSectionArticles[category] = [];
       }
     }
-    fetchFeed();
-  }, [feedUrl]);
+    setSectionArticles(newSectionArticles);
+  }
 
-  // Featured news = pehla article
-  const featuredNews = items.length > 0 ? items[0] : null;
-
-  // Latest news = agle 6 article
-  const latestNews = items.slice(1, 7);
+  useEffect(() => {
+    fetchNews(selectedCategory);
+    fetchSectionArticles();
+  }, [selectedCategory]);
 
   return (
-    <div className="p-4 max-w-7xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Latest Tech Products</h1>
+
       {/* Navbar */}
       <Navbar
         categories={categories}
@@ -65,47 +80,55 @@ export default function Home() {
         onSelectCategory={setSelectedCategory}
       />
 
-      {/* Hero + Side latest news */}
-      <div className="mt-6 grid md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
-          {featuredNews ? (
-            <FeaturedNews item={featuredNews} />
-          ) : (
-            <p className="text-gray-500">Loading featured news...</p>
-          )}
-        </div>
-        <div className="md:col-span-1">
-          <LatestNews items={latestNews} />
-        </div>
-      </div>
+      {/* Featured / Latest Articles */}
+      {loading && <p>Loading news...</p>}
+      {!loading && !items.length && <p>No news available for &quot;{selectedCategory}&quot;</p>}
 
-      {/* Other news */}
-      <div className="mt-10">
-        <h2 className="text-2xl font-bold mb-4">More News</h2>
-        {loading ? (
-          <p className="text-gray-500">Loading...</p>
-        ) : (
-          <RssFeed feedUrl={feedUrl} />
-        )}
-      </div>
+      {!loading && items.length > 0 && (
+        <div className="grid md:grid-cols-2 gap-6 mb-10">
+          {items.map((item) => (
+            <Link key={item.id} href={`/news/${item.id}`} className="block rounded-lg p-4 shadow hover:shadow-lg transition">
+              <Image
+                src={item.image || "/placeholder.jpg"}
+                alt={item.title}
+                width={600}
+                height={400}
+                className="w-full h-48 object-cover rounded mb-3"
+              />
+              <h2 className="text-lg font-semibold">{item.title}</h2>
+              <p className="text-sm text-gray-600">{item.content}</p>
+            </Link>
+          ))}
+        </div>
+      )}
 
-      {/* Categories Section */}
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-6">News by Categories</h2>
-        <div className="grid md:grid-cols-2 gap-10">
-          {categories
-            .filter((cat) => cat !== "All") // All ko skip karenge
-            .map((category) => (
-              <div key={category}>
-                <h3 className="text-xl font-semibold mb-3">{category}</h3>
-                <RssFeed
-                  feedUrl={feedUrls[category]}
-                  limit={6} // sirf 6 news dikhe
-                />
+      {/* Dynamic Product Sections */}
+      {Object.keys(sectionArticles).map((category) => {
+        const articles = sectionArticles[category];
+        return (
+          <div key={category} className="mb-12">
+            <h2 className="text-2xl font-bold mb-4">{category} Articles</h2>
+            {articles.length === 0 ? (
+              <p className="text-gray-500">No articles available</p>
+            ) : (
+              <div className="grid md:grid-cols-3 gap-6">
+                {articles.map((item) => (
+                  <Link key={item.id} href={`/news/${item.id}`} className="block border rounded-lg p-4 shadow hover:shadow-lg transition">
+                    <Image
+                      src={item.image || "/placeholder.jpg"}
+                      alt={item.title}
+                      width={600}
+                      height={400}
+                      className="w-full h-40 object-cover rounded mb-2"
+                    />
+                    <h3 className="font-semibold text-base">{item.title}</h3>
+                  </Link>
+                ))}
               </div>
-            ))}
-        </div>
-      </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
